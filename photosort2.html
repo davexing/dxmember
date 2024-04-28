@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+
+
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        th,
+        td {
+            border: 2px solid #ddd;
+            padding: 5px;
+            text-align: center;
+            position: relative;
+            width: 10%;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 20px;
+        }
+
+        .image-cell {
+            position: relative;
+            padding: 5px;
+            margin: 5px;
+            overflow: hidden;
+            width: 10%; /* Šírka bunky pre desktopové zobrazenie */
+        }
+
+        .image-cell img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .window,
+        .mini-window {
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .window{
+            margin-top: 30px; /* Add some margin to the top of the window */
+        }
+
+        .window-title,
+        .mini-window .window-title {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            margin-top: -20px;
+            margin-left: -20px;
+            margin-right: -20px;
+        }
+
+        .window-content,
+        .mini-window .window-content {
+            margin-top: 20px;
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            /* Adjust as needed */
+        }
+
+        #activityChat {
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+        }
+
+        .panel button {
+            background-color: transparent;
+            /* Transparent button background */
+            color: white;
+            /* White text color */
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .panel button:hover {
+            color: #ddd;
+            /* Lighter text color on hover */
+        }
+
+        .dark-mode {
+            background-color: #111;
+            /* Dark background color for the body */
+            color: #ddd;
+            /* Light text color */
+        }
+
+        .dark-mode .window,
+        .dark-mode .mini-window {
+            border-color: #bbb;
+            /* Adjust border color for windows */
+            background-color: #222;
+            /* Dark background color for windows */
+            color: #ddd;
+            /* Light text color for windows */
+        }
+
+        .dark-mode .window-title,
+        .dark-mode .mini-window .window-title {
+            background-color: #444;
+            /* Dark background color for window titles */
+            color: #ddd;
+            /* Light text color for window titles */
+        }
+
+        .dark-mode th {
+            background-color: #444;
+            /* Dark background color for table headers */
+        }
+
+        .dark-mode .genButton {
+            background-color: #444;
+            /* Dark background color for general buttons */
+            border-color: #444;
+            /* Dark border color for general buttons */
+            color: #ddd;
+            /* Light text color for general buttons */
+        }
+
+        .dark-mode .genButton:hover {
+            background-color: #666;
+            /* Slightly lighter background color on hover for general buttons */
+            color: #fff;
+            /* White text color on hover for general buttons */
+        }
+
+        .genButton,
+        .scroll-to-top {
+            margin: 0 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: 2px solid #4CAF50;
+            /* Green border */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Hover effect for buttons */
+        .genButton:hover,
+        .scroll-to-top:hover {
+            background-color: white;
+            /* White background on hover */
+            color: #4CAF50;
+            /* Green text color on hover */
+        }
+
+
+
+        /* Black and white filter for images */
+        .black-and-white {
+            filter: grayscale(100%);
+        }
+
+
+        img:active {
+            width: 60%; /* Adjust the width as desired */
+            height: auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            z-index: 9999; /* Ensure the image is on top of other content */
+        }
+        
+    </style>
+</head>
+
+<body>
+
+    UserId:<input type="text" id="userID" placeholder="Enter your ID (min 2 characters)" ><button class="genButton" id="darkModeBtn" onclick="toggleDarkMode()">Dark Mode</button><BR>
+    First Foto Link:<input type="text" id="firstPhotoLink" style="width: 100%;" value="http://sort.hopto.org/dxmember/TV02G/912/912_1.jpg" placeholder="Enter link of the first photo..."  oninput="generateGallery()">
+    <button class="genButton" onclick="generateGallery()">Generate Gallery</button>
+    <textarea id="activityChat" rows="10" cols="50" placeholder="Activity Chat..." readonly></textarea>
+
+    <table>
+        <thead>
+            <tr>
+                <th colspan="10">Image Gallery</th>
+            </tr>
+        </thead>
+        <tbody id="imageTable">
+        </tbody>
+    </table>
+
+    <script>
+        var messages = [];
+var firstClickTime;
+var operationEnded = false;
+var firstOperationDone = false;
+var lastTimestamp = 0;
+var originalLink;
+var imageInfo;
+
+
+
+function generateGallery() {
+    var firstPhotoLink = document.getElementById('firstPhotoLink').value;
+
+    imageInfo = readArrayFromUrlSync(firstPhotoLink.replace('.jpg', '.json'));
+    for (var i = 0; i < imageInfo.length; i++) {
+    console.log("Name: " + imageInfo[i].name);
+    console.log("Text: " + imageInfo[i].text);
+    }
+
+    if (!firstPhotoLink || firstPhotoLink === originalLink) {
+        return;
+    }
+
+    originalLink = firstPhotoLink;
+
+    var tableBody = document.getElementById('imageTable');
+    tableBody.innerHTML = "";
+
+    var rowCount = 0;
+    var imageRow;
+    var i = 1; // Start with the first image number
+
+    async function loadImage(index) {
+        return new Promise((resolve, reject) => {
+            var img = document.createElement('img');
+            img.onload = function () {
+                var cell = document.createElement('td');
+                cell.classList.add('image-cell');
+                cell.appendChild(img);
+                var imgSrcText = document.createTextNode(img.src.split('/').pop());
+                cell.appendChild(imgSrcText);
+
+                var textarea = document.createElement('textarea');
+                textarea.placeholder = "";
+                textarea.id = img.src + '-textarea';
+                textarea.classList.add('image-textarea');
+                textarea.addEventListener('keypress', function (event) {
+                    if (event.key === 'Enter') {
+                        handleKeyPress(event);
+                    }
+                });
+                cell.appendChild(textarea);
+
+
+                var startMuteButton = document.createElement("button");
+                startMuteButton.textContent = "StartMute";
+                startMuteButton.addEventListener('click', function () {
+                    handleButtonClick(img.src, 'StartMute');
+                });
+
+                var startButton = document.createElement("button");
+                startButton.textContent = "Start";
+                startButton.addEventListener('click', function () {
+                    handleButtonClick(img.src, 'Start');
+                });
+
+                var stopButton = document.createElement("button");
+                stopButton.textContent = "Stop";
+                stopButton.addEventListener('click', function () {
+                    handleButtonClick(img.src, 'Stop');
+                });
+
+                var stopMuteButton = document.createElement("button");
+                stopMuteButton.textContent = "StopMute";
+                stopMuteButton.addEventListener('click', function () {
+                    handleButtonClick(img.src, 'StopMute');
+                });
+
+                var likeButton = document.createElement("button");
+                likeButton.textContent = "Like";
+                likeButton.addEventListener('click', function () {
+                    handleButtonClick(img.src, 'Like');
+                });
+
+                var badButton = document.createElement("button");
+                badButton.textContent = "Bad";
+                badButton.addEventListener('click', function () {
+                    handleButtonClick(img.src, 'Bad');
+                });
+
+                var buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('button-container');
+                buttonContainer.appendChild(startMuteButton);
+                buttonContainer.appendChild(startButton);
+                buttonContainer.appendChild(stopButton);
+                buttonContainer.appendChild(stopMuteButton);
+                buttonContainer.appendChild(likeButton);
+                buttonContainer.appendChild(badButton);
+                cell.appendChild(buttonContainer);
+
+                imageRow.appendChild(cell);
+
+                img.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    if (operationEnded) return;
+
+                    if (!firstOperationDone) {
+                        firstClickTime = Math.floor(Date.now() / 1000);
+                        firstOperationDone = true;
+                    }
+
+                    var circle = this.parentNode.querySelector('.image-circle');
+                    if (!circle) {
+                        circle = document.createElement('div');
+                        circle.classList.add('image-circle');
+                        this.parentNode.appendChild(circle);
+                        circle.style.display = 'block';
+
+                        var options = {
+                            hour12: false
+                        };
+                        var time = new Date().toLocaleTimeString('en-US', options);
+                        var link = this.src;
+                        var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                        var unixTimestamp = Math.floor(Date.now() / 1000);
+                        var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                        var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
+                        messages.push(message);
+                        updateActivityChat();
+                    } else {
+                        this.parentNode.removeChild(circle);
+
+                        var options = {
+                            hour12: false
+                        };
+                        var time = new Date().toLocaleTimeString('en-US', options);
+                        var link = this.src;
+                        var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                        var unixTimestamp = Math.floor(Date.now() / 1000);
+                        var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                        var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
+                        messages.push(message);
+                        updateActivityChat();
+                    }
+                });
+
+                img.onerror = function () {
+                    cell.parentNode.removeChild(cell);
+                    operationEnded = true;
+                    resolve();
+                };
+
+                resolve();
+            };
+
+            img.src = firstPhotoLink.replace(/(\d+)\.jpg$/, index + '.jpg');
+        });
+    }
+
+    async function generateImages() {
+        var promises = []; // Array to hold promises for image loading
+        var batchSize = 1; // Number of images to load simultaneously
+
+        while (!operationEnded) {
+            if (i % 10 === 1) { // Create a new row for every 10 images
+                imageRow = document.createElement('tr');
+                tableBody.appendChild(imageRow);
+                rowCount++;
+            }
+
+            for (var j = 0; j < batchSize; j++) {
+                promises.push(loadImage(i)); // Load images concurrently
+                i++;
+            }
+
+            await Promise.all(promises); // Wait for all images in the current batch to load before continuing
+            promises = []; // Reset promises array for the next batch
+        }
+    }
+
+    generateImages();
+}
+
+function handleButtonClick(imageSrc, action) {
+    var img = document.querySelector('img[src="' + imageSrc + '"]');
+
+    var options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'};
+    var time = new Date().toLocaleDateString('de-DE', options);
+
+    var unixTimestamp = Date.now();
+    if (lastTimestamp==0) {
+        lastTimestamp = unixTimestamp;
+    }
+    var timeSinceFirstClick = (unixTimestamp - lastTimestamp).toString().padStart(5, '0');
+    lastTimestamp = unixTimestamp;
+    var textarea = document.getElementById(imageSrc+'-textarea');
+
+    var message = `${getUserID()};${unixTimestamp};${timeSinceFirstClick};${time};${imageSrc};${action};${textarea.value}`;
+    messages.push(message);
+    updateActivityChat();
+
+    if (action === "Bad" || action === "Start" || action === "StartMute" || action === "Stop" || action === "StopMute") {
+        img.classList.add('black-and-white');
+    }  else if (action === "Like") {
+        // Make the image black and white
+        img.classList.add('black-and-white');
+
+        // Create a white circle with a red outline and a red "x"
+        var circle = document.createElement('div');
+        circle.classList.add('image-circle');
+        circle.style.backgroundColor = 'white';
+        circle.style.border = '2px solid red';
+        circle.style.borderRadius = '50%';
+        circle.style.position = 'absolute';
+        circle.style.top = 'calc(50% - 7px - 15px - 5px - 5px - 2px)'; // Adjusted top position
+        circle.style.left = '50%';
+        circle.style.transform = 'translate(-50%, -50%)';
+        circle.style.width = '30px';
+        circle.style.height = '30px';
+        circle.style.textAlign = 'center';
+        circle.style.lineHeight = '30px';
+        circle.style.fontSize = '20px';
+        circle.style.fontWeight = 'bold';
+        circle.style.color = 'red';
+        circle.innerHTML = 'x';
+        img.parentNode.style.position = 'relative'; // Ensure parent container is positioned relative
+        img.parentNode.appendChild(circle);
+    }  else if (action === "Like") {
+        // Remove black-and-white filter from the image
+        img.classList.remove('black-and-white');
+
+        // Remove the circle if it exists
+        var circle = img.parentNode.querySelector('.image-circle');
+        if (circle) {
+            img.parentNode.removeChild(circle);
+        }
+    }
+}
+
+
+function handleKeyPress(event) {
+    var textarea = event.target;
+    var imageSrc = textarea.parentNode.querySelector('img').src;
+    var options = {
+        hour12: false
+    };
+    var time = new Date().toLocaleTimeString('en-US', options);
+    var unixTimestamp = Math.floor(Date.now() / 1000);
+    var message = `${getUserID()};${unixTimestamp};${time};2,5;${imageSrc};0;0; ADDED; "${textarea.value}"`;
+    messages.push(message);
+    updateActivityChat();
+}
+
+function updateActivityChat() {
+    var activityChat = document.getElementById('activityChat');
+    activityChat.value = messages.join('\n');
+}
+
+function getUserID() {
+    var userID = document.getElementById('userID').value;
+    return userID || 'Unknown';
+}
+
+function toggleDarkMode() {
+    var body = document.body;
+    body.classList.toggle("dark-mode");
+}
+
+
+async function readArrayFromUrl(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const array = await response.json();
+
+    return array;
+}
+
+
+function readArrayFromUrlSync(url) {
+    return fetch(url)
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            imageInfo=response.json();
+            for (var i = 0; i < imageInfo.length; i++) {
+    console.log("Name: " + imageInfo[i].name);
+    console.log("Text: " + imageInfo[i].text);
+    }
+            return imageInfo;
+        })
+        .then(function(array) {
+            return array;
+        })
+        .catch(function(error) {
+            throw error;
+        });
+}
+
+    </script>
+    </body>
+    </html>
