@@ -221,6 +221,7 @@
     or json Link:<input type="text" id="jsonLink" style="width: 100%;" value="http://sort.hopto.org/dxmember/912.json"   oninput="generateGalleryFromJson()">
 
     <button class="genButton" onclick="generateGallery()">Generate Gallery</button>
+    <button class="genButton" onclick="generateGalleryFromJson()">Generate Gallery from Json</button>
     <textarea id="activityChat" rows="10" cols="50" placeholder="Activity Chat..." readonly></textarea>
 
     <table>
@@ -241,168 +242,170 @@ var firstOperationDone = false;
 var lastTimestamp = 0;
 
 
+var rowCount = 0;
+var imageRow;
+var i = 1; // Start with the first image number
+
+
+
+function loadImageFromSrc(imageSrcArgument) {
+        var tableBody = document.getElementById('imageTable');
+        if (i % 10 === 1) { // Create a new row for every 10 images
+                imageRow = document.createElement('tr');
+                tableBody.appendChild(imageRow);
+                rowCount++;
+        }  
+        i++;
+        
+        var img = document.createElement('img');
+        
+            var cell = document.createElement('td');
+            cell.classList.add('image-cell');
+            cell.appendChild(img);
+            var imgSrcText = document.createTextNode(img.src.split('/').pop());
+            cell.appendChild(imgSrcText);
+
+            var textarea = document.createElement('textarea');
+            textarea.placeholder = "";
+            textarea.id = img.src + '-textarea';
+            textarea.classList.add('image-textarea');
+            textarea.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    handleKeyPress(event);
+                }
+            });
+            cell.appendChild(textarea);
+
+
+            var startMuteButton = document.createElement("button");
+            startMuteButton.textContent = "StartMute";
+            startMuteButton.addEventListener('click', function () {
+                handleButtonClick(img.src, 'StartMute');
+            });
+
+            var startButton = document.createElement("button");
+            startButton.textContent = "Start";
+            startButton.addEventListener('click', function () {
+                handleButtonClick(img.src, 'Start');
+            });
+
+            var stopButton = document.createElement("button");
+            stopButton.textContent = "Stop";
+            stopButton.addEventListener('click', function () {
+                handleButtonClick(img.src, 'Stop');
+            });
+
+            var stopMuteButton = document.createElement("button");
+            stopMuteButton.textContent = "StopMute";
+            stopMuteButton.addEventListener('click', function () {
+                handleButtonClick(img.src, 'StopMute');
+            });
+
+            var likeButton = document.createElement("button");
+            likeButton.textContent = "Like";
+            likeButton.addEventListener('click', function () {
+                handleButtonClick(img.src, 'Like');
+            });
+
+            var badButton = document.createElement("button");
+            badButton.textContent = "Bad";
+            badButton.addEventListener('click', function () {
+                handleButtonClick(img.src, 'Bad');
+            });
+
+            var buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-container');
+            buttonContainer.appendChild(startMuteButton);
+            buttonContainer.appendChild(startButton);
+            buttonContainer.appendChild(stopButton);
+            buttonContainer.appendChild(stopMuteButton);
+            buttonContainer.appendChild(likeButton);
+            buttonContainer.appendChild(badButton);
+            cell.appendChild(buttonContainer);
+
+            imageRow.appendChild(cell);
+
+            img.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (operationEnded) return;
+
+                if (!firstOperationDone) {
+                    firstClickTime = Math.floor(Date.now() / 1000);
+                    firstOperationDone = true;
+                }
+
+                var circle = this.parentNode.querySelector('.image-circle');
+                if (!circle) {
+                    circle = document.createElement('div');
+                    circle.classList.add('image-circle');
+                    this.parentNode.appendChild(circle);
+                    circle.style.display = 'block';
+
+                    var options = {
+                        hour12: false
+                    };
+                    var time = new Date().toLocaleTimeString('en-US', options);
+                    var link = this.src;
+                    var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                    var unixTimestamp = Math.floor(Date.now() / 1000);
+                    var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                    var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
+                    messages.push(message);
+                    updateActivityChat();
+                } else {
+                    this.parentNode.removeChild(circle);
+
+                    var options = {
+                        hour12: false
+                    };
+                    var time = new Date().toLocaleTimeString('en-US', options);
+                    var link = this.src;
+                    var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                    var unixTimestamp = Math.floor(Date.now() / 1000);
+                    var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                    var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
+                    messages.push(message);
+                    updateActivityChat();
+                }
+            });
+           
+        
+
+        img.src = imageSrcArgument;
+   
+}
 
 
 function generateGalleryFromJson() {
-    var firstPhotoLink = document.getElementById('jsonLink').value;
+    var jsonLink = document.getElementById('jsonLink').value;
 
     var tableBody = document.getElementById('imageTable');
     tableBody.innerHTML = "";
 
-    var rowCount = 0;
-    var imageRow;
-    var i = 1; // Start with the first image number
-
-    async function loadImage(index) {
-        return new Promise((resolve, reject) => {
-            var img = document.createElement('img');
-            img.onload = function () {
-                var cell = document.createElement('td');
-                cell.classList.add('image-cell');
-                cell.appendChild(img);
-                var imgSrcText = document.createTextNode(img.src.split('/').pop());
-                cell.appendChild(imgSrcText);
-
-                var textarea = document.createElement('textarea');
-                textarea.placeholder = "";
-                textarea.id = img.src + '-textarea';
-                textarea.classList.add('image-textarea');
-                textarea.addEventListener('keypress', function (event) {
-                    if (event.key === 'Enter') {
-                        handleKeyPress(event);
-                    }
-                });
-                cell.appendChild(textarea);
 
 
-                var startMuteButton = document.createElement("button");
-                startMuteButton.textContent = "StartMute";
-                startMuteButton.addEventListener('click', function () {
-                    handleButtonClick(img.src, 'StartMute');
-                });
 
-                var startButton = document.createElement("button");
-                startButton.textContent = "Start";
-                startButton.addEventListener('click', function () {
-                    handleButtonClick(img.src, 'Start');
-                });
+    fetch(jsonLink)
+  .then(response => response.json())
+  .then(data => {
+    // Create a collection to store the data
+    const collection = data.map(item => ({
+      imgUrl: item.imgUrl,
+      text: item.text
+    }));
 
-                var stopButton = document.createElement("button");
-                stopButton.textContent = "Stop";
-                stopButton.addEventListener('click', function () {
-                    handleButtonClick(img.src, 'Stop');
-                });
+    // Display the data in HTML
+    collection.forEach(item => {
 
-                var stopMuteButton = document.createElement("button");
-                stopMuteButton.textContent = "StopMute";
-                stopMuteButton.addEventListener('click', function () {
-                    handleButtonClick(img.src, 'StopMute');
-                });
 
-                var likeButton = document.createElement("button");
-                likeButton.textContent = "Like";
-                likeButton.addEventListener('click', function () {
-                    handleButtonClick(img.src, 'Like');
-                });
-
-                var badButton = document.createElement("button");
-                badButton.textContent = "Bad";
-                badButton.addEventListener('click', function () {
-                    handleButtonClick(img.src, 'Bad');
-                });
-
-                var buttonContainer = document.createElement('div');
-                buttonContainer.classList.add('button-container');
-                buttonContainer.appendChild(startMuteButton);
-                buttonContainer.appendChild(startButton);
-                buttonContainer.appendChild(stopButton);
-                buttonContainer.appendChild(stopMuteButton);
-                buttonContainer.appendChild(likeButton);
-                buttonContainer.appendChild(badButton);
-                cell.appendChild(buttonContainer);
-
-                imageRow.appendChild(cell);
-
-                img.addEventListener('click', function (event) {
-                    event.preventDefault();
-
-                    if (operationEnded) return;
-
-                    if (!firstOperationDone) {
-                        firstClickTime = Math.floor(Date.now() / 1000);
-                        firstOperationDone = true;
-                    }
-
-                    var circle = this.parentNode.querySelector('.image-circle');
-                    if (!circle) {
-                        circle = document.createElement('div');
-                        circle.classList.add('image-circle');
-                        this.parentNode.appendChild(circle);
-                        circle.style.display = 'block';
-
-                        var options = {
-                            hour12: false
-                        };
-                        var time = new Date().toLocaleTimeString('en-US', options);
-                        var link = this.src;
-                        var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                        var unixTimestamp = Math.floor(Date.now() / 1000);
-                        var timeSinceFirstClick = unixTimestamp - firstClickTime;
-                        var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
-                        messages.push(message);
-                        updateActivityChat();
-                    } else {
-                        this.parentNode.removeChild(circle);
-
-                        var options = {
-                            hour12: false
-                        };
-                        var time = new Date().toLocaleTimeString('en-US', options);
-                        var link = this.src;
-                        var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                        var unixTimestamp = Math.floor(Date.now() / 1000);
-                        var timeSinceFirstClick = unixTimestamp - firstClickTime;
-                        var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
-                        messages.push(message);
-                        updateActivityChat();
-                    }
-                });
-
-                img.onerror = function () {
-                    cell.parentNode.removeChild(cell);
-                    operationEnded = true;
-                    resolve();
-                };
-
-                resolve();
-            };
-
-            img.src = firstPhotoLink.replace(/(\d+)\.jpg$/, index + '.jpg');
-        });
-    }
-
-    async function generateImages() {
-        var promises = []; // Array to hold promises for image loading
-        var batchSize = 1; // Number of images to load simultaneously
-
-        while (!operationEnded) {
-            if (i % 10 === 1) { // Create a new row for every 10 images
-                imageRow = document.createElement('tr');
-                tableBody.appendChild(imageRow);
-                rowCount++;
-            }
-
-            for (var j = 0; j < batchSize; j++) {
-                promises.push(loadImage(i)); // Load images concurrently
-                i++;
-            }
-
-            await Promise.all(promises); // Wait for all images in the current batch to load before continuing
-            promises = []; // Reset promises array for the next batch
-        }
-    }
-
-    generateImages();
+      loadImageFromSrc(item.imgUrl);
+      //const div = document.createElement('div');
+      //div.innerHTML = `<img src="${item.imgUrl}" alt="Image"><p>${item.text}</p>`;
+      //tableBody.appendChild(div);
+    });
+  })
+  .catch(error => console.error('Error fetching data:', error));
 }
 
 
