@@ -239,477 +239,484 @@
         </tbody>
     </table>
 
-    <script>
-        var messages = [];
-        var firstClickTime;
-        var operationEnded = false;
-        var firstOperationDone = false;
-        var lastTimestamp = 0;
+</body>
+<script>
+    var messages = [];
+    var firstClickTime;
+    var operationEnded = false;
+    var firstOperationDone = false;
+    var lastTimestamp = 0;
 
+
+    var rowCount = 0;
+    var imageRow;
+    var i = 1; // Start with the first image number
+
+    function loadImageFromSrc(imageSrcArgument, itemText) {
+
+
+        var tableBody = document.getElementById('imageTable');
+        if (i % 10 === 1) { // Create a new row for every 10 images
+            imageRow = document.createElement('tr');
+            tableBody.appendChild(imageRow);
+            rowCount++;
+        }
+        i++;
+
+        var img = document.createElement('img');
+        img.src = imageSrcArgument;
+        var cell = document.createElement('td');
+        cell.classList.add('image-cell');
+        cell.appendChild(img);
+        var imgSrcText = document.createElement('td');
+        imgSrcText.innerHTML = itemText;
+        cell.appendChild(imgSrcText);
+
+        var textarea = document.createElement('textarea');
+        textarea.placeholder = "";
+        textarea.id = img.src + '-textarea';
+        textarea.classList.add('image-textarea');
+        textarea.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                handleKeyPress(event);
+            }
+        });
+        cell.appendChild(textarea);
+
+
+        var startMuteButton = document.createElement("button");
+        startMuteButton.textContent = "StartMute";
+        startMuteButton.classList.add("genButton");
+        startMuteButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'StartMute');
+        });
+
+        var startButton = document.createElement("button");
+        startButton.textContent = "Start";
+        startButton.classList.add("genButton");
+        startButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start');
+        });
+
+        var startMButton = document.createElement("button");
+        startMButton.textContent = "Start;m";
+        startMButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start;m');
+        });
+
+        var startUbButton = document.createElement("button");
+        startUbButton.textContent = "Start;ub";
+        startUbButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start;ub');
+        });
+
+        var startUpButton = document.createElement("button");
+        startUpButton.textContent = "Start;up";
+        startUpButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start;up');
+        });
+
+        var startRButton = document.createElement("button");
+        startRButton.textContent = "Start;r";
+        startRButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start;r');
+        });
+
+        var startEButton = document.createElement("button");
+        startEButton.textContent = "Start;e";
+        startEButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start;e');
+        });
+
+
+        var stopButton = document.createElement("button");
+        stopButton.textContent = "Stop";
+        stopButton.classList.add("genButton");
+        stopButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Stop');
+        });
+
+        var stopMuteButton = document.createElement("button");
+        stopMuteButton.textContent = "StopMute";
+        stopMuteButton.classList.add("genButton");
+        stopMuteButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'StopMute');
+        });
+
+        var likeButton = document.createElement("button");
+        likeButton.textContent = "Like";
+        likeButton.classList.add("genButton");
+        likeButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Like');
+        });
+
+        var badButton = document.createElement("button");
+        badButton.textContent = "Bad";
+        badButton.classList.add("genButton");
+        badButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Bad');
+        });
+
+        var buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('button-container');
+        buttonContainer.appendChild(startMuteButton);
+        buttonContainer.appendChild(startButton);
+        buttonContainer.appendChild(startMButton);
+        buttonContainer.appendChild(startUbButton);
+        buttonContainer.appendChild(startUpButton);
+        buttonContainer.appendChild(startRButton);
+        buttonContainer.appendChild(startEButton);
+        buttonContainer.appendChild(stopButton);
+        buttonContainer.appendChild(stopMuteButton);
+        buttonContainer.appendChild(likeButton);
+        buttonContainer.appendChild(badButton);
+
+
+
+        cell.appendChild(buttonContainer);
+        // Create a <br> element
+
+
+
+
+
+        imageRow.appendChild(cell);
+
+        img.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            if (operationEnded) return;
+
+            if (!firstOperationDone) {
+                firstClickTime = Math.floor(Date.now() / 1000);
+                firstOperationDone = true;
+            }
+
+            var circle = this.parentNode.querySelector('.image-circle');
+            if (!circle) {
+                circle = document.createElement('div');
+                circle.classList.add('image-circle');
+                this.parentNode.appendChild(circle);
+                circle.style.display = 'block';
+
+                var options = {
+                    hour12: false
+                };
+                var time = new Date().toLocaleTimeString('en-US', options);
+                var link = this.src;
+                var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                var unixTimestamp = Math.floor(Date.now() / 1000);
+                var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
+                messages.push(message);
+                updateActivityChat();
+            } else {
+                this.parentNode.removeChild(circle);
+
+                var options = {
+                    hour12: false
+                };
+                var time = new Date().toLocaleTimeString('en-US', options);
+                var link = this.src;
+                var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                var unixTimestamp = Math.floor(Date.now() / 1000);
+                var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
+                messages.push(message);
+                updateActivityChat();
+            }
+        });
+    }
+
+
+    function generateGalleryFromJson() {
+        var jsonLink = document.getElementById('jsonLink').value;
+
+        var tableBody = document.getElementById('imageTable');
+        tableBody.innerHTML = "";
+
+
+
+
+        fetch(jsonLink)
+            .then(response => response.json())
+            .then(data => {
+                // Create a collection to store the data
+                const collection = data.map(item => ({
+                    imgUrl: item.imgUrl,
+                    text: item.text
+                }));
+
+                // Display the data in HTML
+                collection.forEach(item => {
+
+
+                    loadImageFromSrc(item.imgUrl, item.text);
+                    //const div = document.createElement('div');
+                    //div.innerHTML = `<img src="${item.imgUrl}" alt="Image"><p>${item.text}</p>`;
+                    //tableBody.appendChild(div);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+
+
+
+    function generateGallery() {
+        var firstPhotoLink = document.getElementById('firstPhotoLink').value;
+
+
+        var tableBody = document.getElementById('imageTable');
+        tableBody.innerHTML = "";
 
         var rowCount = 0;
         var imageRow;
         var i = 1; // Start with the first image number
 
-        function loadImageFromSrc(imageSrcArgument, itemText) {
+        async function loadImage(index) {
+            return new Promise((resolve, reject) => {
+                var img = document.createElement('img');
+                img.onload = function () {
+                    var cell = document.createElement('td');
+                    cell.classList.add('image-cell');
+                    cell.appendChild(img);
+                    var imgSrcText = document.createTextNode(img.src.split('/').pop());
+                    cell.appendChild(imgSrcText);
 
-         
-            var tableBody = document.getElementById('imageTable');
-            if (i % 10 === 1) { // Create a new row for every 10 images
-                imageRow = document.createElement('tr');
-                tableBody.appendChild(imageRow);
-                rowCount++;
-            }
-            i++;
-
-            var img = document.createElement('img');
-            img.src = imageSrcArgument;
-            var cell = document.createElement('td');
-            cell.classList.add('image-cell');
-            cell.appendChild(img);
-            var imgSrcText = document.createElement('td');
-            imgSrcText.innerHTML = itemText;
-            cell.appendChild(imgSrcText);
-
-            var textarea = document.createElement('textarea');
-            textarea.placeholder = "";
-            textarea.id = img.src + '-textarea';
-            textarea.classList.add('image-textarea');
-            textarea.addEventListener('keypress', function (event) {
-                if (event.key === 'Enter') {
-                    handleKeyPress(event);
-                }
-            });
-            cell.appendChild(textarea);
-
-
-            var startMuteButton = document.createElement("button");
-            startMuteButton.textContent = "StartMute";
-            startMuteButton.classList.add("genButton");
-            startMuteButton.addEventListener('click', function () {
-                handleButtonClick(img.src, 'StartMute');
-            });
-
-            var startButton = document.createElement("button");
-            startButton.textContent = "Start";
-            startButton.classList.add("genButton");
-            startButton.addEventListener('click', function () {
-                handleButtonClick(img.src, 'Start');
-            });
-
-            var stopButton = document.createElement("button");
-            stopButton.textContent = "Stop";
-            stopButton.classList.add("genButton");
-            stopButton.addEventListener('click', function () {
-                handleButtonClick(img.src, 'Stop');
-            });
-
-            var stopMuteButton = document.createElement("button");
-            stopMuteButton.textContent = "StopMute";
-            stopMuteButton.classList.add("genButton");
-            stopMuteButton.addEventListener('click', function () {
-                handleButtonClick(img.src, 'StopMute');
-            });
-
-            var likeButton = document.createElement("button");
-            likeButton.textContent = "Like";
-            likeButton.classList.add("genButton");
-            likeButton.addEventListener('click', function () {
-                handleButtonClick(img.src, 'Like');
-            });
-
-            var badButton = document.createElement("button");
-            badButton.textContent = "Bad";
-            badButton.classList.add("genButton");
-            badButton.addEventListener('click', function () {
-                handleButtonClick(img.src, 'Bad');
-            });
-
-            var buttonContainer = document.createElement('div');
-            buttonContainer.classList.add('button-container');
-            buttonContainer.appendChild(startMuteButton);
-            buttonContainer.appendChild(startButton);
-            buttonContainer.appendChild(stopButton);
-            buttonContainer.appendChild(stopMuteButton);
-            buttonContainer.appendChild(likeButton);
-            buttonContainer.appendChild(badButton);
-
-
-
-            cell.appendChild(buttonContainer);
-            // Create a <br> element
-
-
-
-
-
-            imageRow.appendChild(cell);
-
-            img.addEventListener('click', function (event) {
-                event.preventDefault();
-
-                if (operationEnded) return;
-
-                if (!firstOperationDone) {
-                    firstClickTime = Math.floor(Date.now() / 1000);
-                    firstOperationDone = true;
-                }
-
-                var circle = this.parentNode.querySelector('.image-circle');
-                if (!circle) {
-                    circle = document.createElement('div');
-                    circle.classList.add('image-circle');
-                    this.parentNode.appendChild(circle);
-                    circle.style.display = 'block';
-
-                    var options = {
-                        hour12: false
-                    };
-                    var time = new Date().toLocaleTimeString('en-US', options);
-                    var link = this.src;
-                    var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                    var unixTimestamp = Math.floor(Date.now() / 1000);
-                    var timeSinceFirstClick = unixTimestamp - firstClickTime;
-                    var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
-                    messages.push(message);
-                    updateActivityChat();
-                } else {
-                    this.parentNode.removeChild(circle);
-
-                    var options = {
-                        hour12: false
-                    };
-                    var time = new Date().toLocaleTimeString('en-US', options);
-                    var link = this.src;
-                    var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                    var unixTimestamp = Math.floor(Date.now() / 1000);
-                    var timeSinceFirstClick = unixTimestamp - firstClickTime;
-                    var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
-                    messages.push(message);
-                    updateActivityChat();
-                }
-            });
-        }
-
-
-        function generateGalleryFromJson() {
-            var jsonLink = document.getElementById('jsonLink').value;
-
-            var tableBody = document.getElementById('imageTable');
-            tableBody.innerHTML = "";
-
-
-
-
-            fetch(jsonLink)
-                .then(response => response.json())
-                .then(data => {
-                    // Create a collection to store the data
-                    const collection = data.map(item => ({
-                        imgUrl: item.imgUrl,
-                        text: item.text
-                    }));
-
-                    // Display the data in HTML
-                    collection.forEach(item => {
-
-
-                        loadImageFromSrc(item.imgUrl, item.text);
-                        //const div = document.createElement('div');
-                        //div.innerHTML = `<img src="${item.imgUrl}" alt="Image"><p>${item.text}</p>`;
-                        //tableBody.appendChild(div);
+                    var textarea = document.createElement('textarea');
+                    textarea.placeholder = "";
+                    textarea.id = img.src + '-textarea';
+                    textarea.classList.add('image-textarea');
+                    textarea.addEventListener('keypress', function (event) {
+                        if (event.key === 'Enter') {
+                            handleKeyPress(event);
+                        }
                     });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
+                    cell.appendChild(textarea);
 
 
+                    var startMuteButton = document.createElement("button");
+                    startMuteButton.textContent = "StartMute";
+                    startMuteButton.addEventListener('click', function () {
+                        handleButtonClick(img.src, 'StartMute');
+                    });
+
+                    var startButton = document.createElement("button");
+                    startButton.textContent = "Start";
+                    startButton.addEventListener('click', function () {
+                        handleButtonClick(img.src, 'Start');
+                    });
 
 
-        function generateGallery() {
-            var firstPhotoLink = document.getElementById('firstPhotoLink').value;
+                    var stopButton = document.createElement("button");
+                    stopButton.textContent = "Stop";
+                    stopButton.addEventListener('click', function () {
+                        handleButtonClick(img.src, 'Stop');
+                    });
 
+                    var stopMuteButton = document.createElement("button");
+                    stopMuteButton.textContent = "StopMute";
+                    stopMuteButton.addEventListener('click', function () {
+                        handleButtonClick(img.src, 'StopMute');
+                    });
 
-            var tableBody = document.getElementById('imageTable');
-            tableBody.innerHTML = "";
+                    var likeButton = document.createElement("button");
+                    likeButton.textContent = "Like";
+                    likeButton.addEventListener('click', function () {
+                        handleButtonClick(img.src, 'Like');
+                    });
 
-            var rowCount = 0;
-            var imageRow;
-            var i = 1; // Start with the first image number
+                    var badButton = document.createElement("button");
+                    badButton.textContent = "Bad";
+                    badButton.addEventListener('click', function () {
+                        handleButtonClick(img.src, 'Bad');
+                    });
 
-            async function loadImage(index) {
-                return new Promise((resolve, reject) => {
-                    var img = document.createElement('img');
-                    img.onload = function () {
-                        var cell = document.createElement('td');
-                        cell.classList.add('image-cell');
-                        cell.appendChild(img);
-                        var imgSrcText = document.createTextNode(img.src.split('/').pop());
-                        cell.appendChild(imgSrcText);
+                    var buttonContainer = document.createElement('div');
+                    buttonContainer.classList.add('button-container');
+                    buttonContainer.appendChild(startMuteButton);
+                    buttonContainer.appendChild(startButton);
+                    buttonContainer.appendChild(stopButton);
+                    buttonContainer.appendChild(stopMuteButton);
+                    buttonContainer.appendChild(likeButton);
+                    buttonContainer.appendChild(badButton);
+                    cell.appendChild(buttonContainer);
 
-                        var textarea = document.createElement('textarea');
-                        textarea.placeholder = "";
-                        textarea.id = img.src + '-textarea';
-                        textarea.classList.add('image-textarea');
-                        textarea.addEventListener('keypress', function (event) {
-                            if (event.key === 'Enter') {
-                                handleKeyPress(event);
-                            }
-                        });
-                        cell.appendChild(textarea);
+                    imageRow.appendChild(cell);
 
+                    img.addEventListener('click', function (event) {
+                        event.preventDefault();
 
-                        var startMuteButton = document.createElement("button");
-                        startMuteButton.textContent = "StartMute";
-                        startMuteButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'StartMute');
-                        });
+                        if (operationEnded) return;
 
-                        var startButton = document.createElement("button");
-                        startButton.textContent = "Start";
-                        startButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Start');
-                        });
+                        if (!firstOperationDone) {
+                            firstClickTime = Math.floor(Date.now() / 1000);
+                            firstOperationDone = true;
+                        }
 
-                        var startMButton = document.createElement("button");
-                        startMButton.textContent = "Start;m";
-                        startMButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Start;m');
-                        });
+                        var circle = this.parentNode.querySelector('.image-circle');
+                        if (!circle) {
+                            circle = document.createElement('div');
+                            circle.classList.add('image-circle');
+                            this.parentNode.appendChild(circle);
+                            circle.style.display = 'block';
 
-                        var startUbButton = document.createElement("button");
-                        startUbButton.textContent = "Start;ub";
-                        startUbButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Start;ub');
-                        });
+                            var options = {
+                                hour12: false
+                            };
+                            var time = new Date().toLocaleTimeString('en-US', options);
+                            var link = this.src;
+                            var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                            var unixTimestamp = Math.floor(Date.now() / 1000);
+                            var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                            var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
+                            messages.push(message);
+                            updateActivityChat();
+                        } else {
+                            this.parentNode.removeChild(circle);
 
-                        var startUpButton = document.createElement("button");
-                        startUpButton.textContent = "Start;up";
-                        startUpButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Start;up');
-                        });
+                            var options = {
+                                hour12: false
+                            };
+                            var time = new Date().toLocaleTimeString('en-US', options);
+                            var link = this.src;
+                            var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
+                            var unixTimestamp = Math.floor(Date.now() / 1000);
+                            var timeSinceFirstClick = unixTimestamp - firstClickTime;
+                            var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
+                            messages.push(message);
+                            updateActivityChat();
+                        }
+                    });
 
-                        var startRButton = document.createElement("button");
-                        startRButton.textContent = "Start;r";
-                        startRButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Start;r');
-                        });
-
-                        var startEButton = document.createElement("button");
-                        startEButton.textContent = "Start;e";
-                        startEButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Start;e');
-                        });
-
-                        var stopButton = document.createElement("button");
-                        stopButton.textContent = "Stop";
-                        stopButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Stop');
-                        });
-
-                        var stopMuteButton = document.createElement("button");
-                        stopMuteButton.textContent = "StopMute";
-                        stopMuteButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'StopMute');
-                        });
-
-                        var likeButton = document.createElement("button");
-                        likeButton.textContent = "Like";
-                        likeButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Like');
-                        });
-
-                        var badButton = document.createElement("button");
-                        badButton.textContent = "Bad";
-                        badButton.addEventListener('click', function () {
-                            handleButtonClick(img.src, 'Bad');
-                        });
-
-                        var buttonContainer = document.createElement('div');
-                        buttonContainer.classList.add('button-container');
-                        buttonContainer.appendChild(startMuteButton);
-                        buttonContainer.appendChild(startButton);
-                        buttonContainer.appendChild(stopButton);
-                        buttonContainer.appendChild(stopMuteButton);
-                        buttonContainer.appendChild(likeButton);
-                        buttonContainer.appendChild(badButton);
-                        cell.appendChild(buttonContainer);
-
-                        imageRow.appendChild(cell);
-
-                        img.addEventListener('click', function (event) {
-                            event.preventDefault();
-
-                            if (operationEnded) return;
-
-                            if (!firstOperationDone) {
-                                firstClickTime = Math.floor(Date.now() / 1000);
-                                firstOperationDone = true;
-                            }
-
-                            var circle = this.parentNode.querySelector('.image-circle');
-                            if (!circle) {
-                                circle = document.createElement('div');
-                                circle.classList.add('image-circle');
-                                this.parentNode.appendChild(circle);
-                                circle.style.display = 'block';
-
-                                var options = {
-                                    hour12: false
-                                };
-                                var time = new Date().toLocaleTimeString('en-US', options);
-                                var link = this.src;
-                                var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                                var unixTimestamp = Math.floor(Date.now() / 1000);
-                                var timeSinceFirstClick = unixTimestamp - firstClickTime;
-                                var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
-                                messages.push(message);
-                                updateActivityChat();
-                            } else {
-                                this.parentNode.removeChild(circle);
-
-                                var options = {
-                                    hour12: false
-                                };
-                                var time = new Date().toLocaleTimeString('en-US', options);
-                                var link = this.src;
-                                var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                                var unixTimestamp = Math.floor(Date.now() / 1000);
-                                var timeSinceFirstClick = unixTimestamp - firstClickTime;
-                                var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
-                                messages.push(message);
-                                updateActivityChat();
-                            }
-                        });
-
-                        img.onerror = function () {
-                            cell.parentNode.removeChild(cell);
-                            operationEnded = true;
-                            resolve();
-                        };
-
+                    img.onerror = function () {
+                        cell.parentNode.removeChild(cell);
+                        operationEnded = true;
                         resolve();
                     };
 
-                    img.src = firstPhotoLink.replace(/(\d+)\.jpg$/, index + '.jpg');
-                });
-            }
+                    resolve();
+                };
 
-            async function generateImages() {
-                var promises = []; // Array to hold promises for image loading
-                var batchSize = 1; // Number of images to load simultaneously
-
-                while (!operationEnded) {
-                    if (i % 10 === 1) { // Create a new row for every 10 images
-                        imageRow = document.createElement('tr');
-                        tableBody.appendChild(imageRow);
-                        rowCount++;
-                    }
-
-                    for (var j = 0; j < batchSize; j++) {
-                        promises.push(loadImage(i)); // Load images concurrently
-                        i++;
-                    }
-
-                    await Promise.all(promises); // Wait for all images in the current batch to load before continuing
-                    promises = []; // Reset promises array for the next batch
-                }
-            }
-
-            generateImages();
+                img.src = firstPhotoLink.replace(/(\d+)\.jpg$/, index + '.jpg');
+            });
         }
 
+        async function generateImages() {
+            var promises = []; // Array to hold promises for image loading
+            var batchSize = 1; // Number of images to load simultaneously
 
+            while (!operationEnded) {
+                if (i % 10 === 1) { // Create a new row for every 10 images
+                    imageRow = document.createElement('tr');
+                    tableBody.appendChild(imageRow);
+                    rowCount++;
+                }
 
+                for (var j = 0; j < batchSize; j++) {
+                    promises.push(loadImage(i)); // Load images concurrently
+                    i++;
+                }
 
-        function handleButtonClick(imageSrc, action) {
-            var img = document.querySelector('img[src="' + imageSrc + '"]');
-
-            var options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            var time = new Date().toLocaleDateString('de-DE', options);
-
-            var unixTimestamp = Date.now();
-            if (lastTimestamp == 0) {
-                lastTimestamp = unixTimestamp;
+                await Promise.all(promises); // Wait for all images in the current batch to load before continuing
+                promises = []; // Reset promises array for the next batch
             }
-            var timeSinceFirstClick = (unixTimestamp - lastTimestamp).toString().padStart(5, '0');
+        }
+
+        generateImages();
+    }
+
+
+
+
+    function handleButtonClick(imageSrc, action) {
+        var img = document.querySelector('img[src="' + imageSrc + '"]');
+
+        var options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        var time = new Date().toLocaleDateString('de-DE', options);
+
+        var unixTimestamp = Date.now();
+        if (lastTimestamp == 0) {
             lastTimestamp = unixTimestamp;
-            var textarea = document.getElementById(imageSrc + '-textarea');
+        }
+        var timeSinceFirstClick = (unixTimestamp - lastTimestamp).toString().padStart(5, '0');
+        lastTimestamp = unixTimestamp;
+        var textarea = document.getElementById(imageSrc + '-textarea');
 
-            var message = `${getUserID()};${unixTimestamp};${timeSinceFirstClick};${time};${imageSrc};${action};${textarea.value}`;
-            messages.push(message);
-            updateActivityChat();
+        var message = `${getUserID()};${unixTimestamp};${timeSinceFirstClick};${time};${imageSrc};${action};${textarea.value}`;
+        messages.push(message);
+        updateActivityChat();
 
-            if (action === "Bad" || action === "Start" || action === "StartMute" || action === "Stop" || action === "StopMute") {
-                img.classList.add('black-and-white');
-            } else if (action === "Like") {
-                // Make the image black and white
-                img.classList.add('black-and-white');
+        if (action === "Bad" || action === "Start" || action === "StartMute" || action === "Stop" || action === "StopMute") {
+            img.classList.add('black-and-white');
+        } else if (action === "Like") {
+            // Make the image black and white
+            img.classList.add('black-and-white');
 
-                // Create a white circle with a red outline and a red "x"
-                var circle = document.createElement('div');
-                circle.classList.add('image-circle');
-                circle.style.backgroundColor = 'white';
-                circle.style.border = '2px solid red';
-                circle.style.borderRadius = '50%';
-                circle.style.position = 'absolute';
-                circle.style.top = 'calc(50% - 7px - 15px - 5px - 5px - 2px)'; // Adjusted top position
-                circle.style.left = '50%';
-                circle.style.transform = 'translate(-50%, -50%)';
-                circle.style.width = '30px';
-                circle.style.height = '30px';
-                circle.style.textAlign = 'center';
-                circle.style.lineHeight = '30px';
-                circle.style.fontSize = '20px';
-                circle.style.fontWeight = 'bold';
-                circle.style.color = 'red';
-                circle.innerHTML = 'x';
-                img.parentNode.style.position = 'relative'; // Ensure parent container is positioned relative
-                img.parentNode.appendChild(circle);
-            } else if (action === "Like") {
-                // Remove black-and-white filter from the image
-                img.classList.remove('black-and-white');
+            // Create a white circle with a red outline and a red "x"
+            var circle = document.createElement('div');
+            circle.classList.add('image-circle');
+            circle.style.backgroundColor = 'white';
+            circle.style.border = '2px solid red';
+            circle.style.borderRadius = '50%';
+            circle.style.position = 'absolute';
+            circle.style.top = 'calc(50% - 7px - 15px - 5px - 5px - 2px)'; // Adjusted top position
+            circle.style.left = '50%';
+            circle.style.transform = 'translate(-50%, -50%)';
+            circle.style.width = '30px';
+            circle.style.height = '30px';
+            circle.style.textAlign = 'center';
+            circle.style.lineHeight = '30px';
+            circle.style.fontSize = '20px';
+            circle.style.fontWeight = 'bold';
+            circle.style.color = 'red';
+            circle.innerHTML = 'x';
+            img.parentNode.style.position = 'relative'; // Ensure parent container is positioned relative
+            img.parentNode.appendChild(circle);
+        } else if (action === "Like") {
+            // Remove black-and-white filter from the image
+            img.classList.remove('black-and-white');
 
-                // Remove the circle if it exists
-                var circle = img.parentNode.querySelector('.image-circle');
-                if (circle) {
-                    img.parentNode.removeChild(circle);
-                }
+            // Remove the circle if it exists
+            var circle = img.parentNode.querySelector('.image-circle');
+            if (circle) {
+                img.parentNode.removeChild(circle);
             }
         }
+    }
 
 
-        function handleKeyPress(event) {
-            var textarea = event.target;
-            var imageSrc = textarea.parentNode.querySelector('img').src;
-            var options = {
-                hour12: false
-            };
-            var time = new Date().toLocaleTimeString('en-US', options);
-            var unixTimestamp = Math.floor(Date.now() / 1000);
-            var message = `${getUserID()};${unixTimestamp};${time};2,5;${imageSrc};0;0; ADDED; "${textarea.value}"`;
-            messages.push(message);
-            updateActivityChat();
-        }
+    function handleKeyPress(event) {
+        var textarea = event.target;
+        var imageSrc = textarea.parentNode.querySelector('img').src;
+        var options = {
+            hour12: false
+        };
+        var time = new Date().toLocaleTimeString('en-US', options);
+        var unixTimestamp = Math.floor(Date.now() / 1000);
+        var message = `${getUserID()};${unixTimestamp};${time};2,5;${imageSrc};0;0; ADDED; "${textarea.value}"`;
+        messages.push(message);
+        updateActivityChat();
+    }
 
-        function updateActivityChat() {
-            var activityChat = document.getElementById('activityChat');
-            activityChat.value = messages.join('\n');
-        }
+    function updateActivityChat() {
+        var activityChat = document.getElementById('activityChat');
+        activityChat.value = messages.join('\n');
+    }
 
-        function getUserID() {
-            var userID = document.getElementById('userID').value;
-            return userID || 'Unknown';
-        }
+    function getUserID() {
+        var userID = document.getElementById('userID').value;
+        return userID || 'Unknown';
+    }
 
-        function toggleDarkMode() {
-            var body = document.body;
-            body.classList.toggle("dark-mode");
-        }
+    function toggleDarkMode() {
+        var body = document.body;
+        body.classList.toggle("dark-mode");
+    }
 
 
 
-    </script>
-</body>
+</script>
 
 </html>
