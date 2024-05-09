@@ -221,9 +221,8 @@
     UserId:<input type="text" id="userID" placeholder="Enter your ID (min 2 characters)"><button class="genButton"
         id="darkModeBtn" onclick="toggleDarkMode()">Dark Mode</button><BR>
     First Foto Link:<input type="text" id="firstPhotoLink" style="width: 100%;"
-        value="http://sort.hopto.org/dxmember/TV02G/912/912_1.jpg" oninput="generateGallery()">
-    or json Link:<input type="text" id="jsonLink" style="width: 100%;" value="http://sort.hopto.org/dxmember/912.json"
-        oninput="generateGalleryFromJson()">
+        value="http://sort.hopto.org/dxmember/TV02G/912/912_1.jpg" >
+    or json Link:<input type="text" id="jsonLink" style="width: 100%;" value="http://sort.hopto.org/dxmember/912.json">
 
     <button class="genButton" onclick="generateGallery()">Generate Gallery</button>
     <button class="genButton" onclick="generateGalleryFromJson()">Generate Gallery from Json</button>
@@ -251,6 +250,19 @@
     var rowCount = 0;
     var imageRow;
     var i = 1; // Start with the first image number
+
+
+    // Set parameter from Url
+    // Assuming the URL is something like: http://example.com/page?jsonLink=http://abc.org/subs/16130.json
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramValue = urlParams.get('jsonLink');
+
+    if (paramValue !== null && paramValue !== '') {
+        // Set the value of the input element
+        document.getElementById('jsonLink').value = paramValue;
+    } else {
+        console.log('Parameter is empty.');
+    }
 
     function loadImageFromSrc(imageSrcArgument, itemText) {
 
@@ -653,7 +665,7 @@
         messages.push(message);
         updateActivityChat();
 
-        if (action === "Bad" || action === "Start" || action === "StartMute" || action === "Stop" || action === "StopMute") {
+        if (action === "Bad" || action === "Start"  || action === "Start;m"  || action === "Start;ub"  || action === "Start;up"  || action === "Start;r"  || action === "Start;e"  || action === "StartMute" || action === "Stop" || action === "StopMute") {
             img.classList.add('black-and-white');
         } else if (action === "Like") {
             // Make the image black and white
