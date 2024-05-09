@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Gallery</title>
     <style>
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -468,6 +469,36 @@
                         startButton.textContent = "Start";
                         startButton.addEventListener('click', function () {
                             handleButtonClick(img.src, 'Start');
+                        });
+
+                        var startMButton = document.createElement("button");
+                        startMButton.textContent = "Start;m";
+                        startMButton.addEventListener('click', function () {
+                            handleButtonClick(img.src, 'Start;m');
+                        });
+
+                        var startUbButton = document.createElement("button");
+                        startUbButton.textContent = "Start;ub";
+                        startUbButton.addEventListener('click', function () {
+                            handleButtonClick(img.src, 'Start;ub');
+                        });
+
+                        var startUpButton = document.createElement("button");
+                        startUpButton.textContent = "Start;up";
+                        startUpButton.addEventListener('click', function () {
+                            handleButtonClick(img.src, 'Start;up');
+                        });
+
+                        var startRButton = document.createElement("button");
+                        startRButton.textContent = "Start;r";
+                        startRButton.addEventListener('click', function () {
+                            handleButtonClick(img.src, 'Start;r');
+                        });
+
+                        var startEButton = document.createElement("button");
+                        startEButton.textContent = "Start;e";
+                        startEButton.addEventListener('click', function () {
+                            handleButtonClick(img.src, 'Start;e');
                         });
 
                         var stopButton = document.createElement("button");
