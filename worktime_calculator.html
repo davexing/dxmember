@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract and Sum Numbers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+        button {
+            margin: 10px 0;
+        }
+        .log {
+            white-space: pre-wrap;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Enter your logs</h1>
+<textarea id="inputText" placeholder="Enter lines of text here..."></textarea>
+<button onclick="processLines()">Calculate work time</button>
+
+<h2>Logs:</h2>
+<div id="logOutput" class="log"></div>
+
+<h2>Result:</h2>
+<div id="resultOutput" class="log"></div>
+
+<script>
+    function processLines() {
+        const textArea = document.getElementById('inputText').value;
+        const lines = textArea.split('\n');
+        let totalSum = 0;
+        let logMessages = "";
+
+        lines.forEach((line, index) => {
+            if (line.trim() === "") return; // skip empty lines
+            const parts = line.split(';');
+            if (parts.length < 3) {
+                logMessages += `Line ${index + 1}: Invalid format - ${line}\n`;
+                return;
+            }
+            
+            let number = parseInt(parts[2], 10);
+            if (isNaN(number)) {
+                logMessages += `Line ${index + 1}: Not a number - ${line}\n`;
+                return;
+            }
+
+            let addedNumber = number > 20000 ? 20000 : number;
+            totalSum += addedNumber;
+            logMessages += `Line ${index + 1}: Extracted ${number}, Added ${addedNumber}, CurrentSum ${totalSum} - ${line}\n`;
+        });
+
+        const formulaResult = ((totalSum / 1000) / 60 ).toFixed(2);
+        document.getElementById('logOutput').textContent = logMessages;
+        document.getElementById('resultOutput').textContent = `Worktime in miliseconds: ${totalSum}\nWorktime in minutes: ${formulaResult}`;
+    }
+</script>
+
+</body>
+</html>
