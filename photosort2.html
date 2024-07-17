@@ -162,7 +162,7 @@
             color: #ddd;
             /* Light text color for general buttons */
         }
-
+		
         .dark-mode .genButton:hover {
             background-color: #666;
             /* Slightly lighter background color on hover for general buttons */
@@ -338,11 +338,11 @@
             handleButtonClick(img.src, 'Start;r');
         });
 
-        var startEButton = document.createElement("button");
-        startEButton.textContent = "Start;e";
-        startEButton.classList.add("genButton");
-        startEButton.addEventListener('click', function () {
-            handleButtonClick(img.src, 'Start;e');
+        var startPSButton = document.createElement("button");
+        startPSButton.textContent = "Start;ps";
+        startPSButton.classList.add("genButton");
+        startPSButton.addEventListener('click', function () {
+            handleButtonClick(img.src, 'Start;ps');
         });
 
 
@@ -376,15 +376,15 @@
 
         var buttonContainer = document.createElement('div');
         buttonContainer.classList.add('button-container');
-        buttonContainer.appendChild(startMuteButton);
+		buttonContainer.appendChild(stopButton);		
+        //buttonContainer.appendChild(startMuteButton);
         buttonContainer.appendChild(startButton);
         buttonContainer.appendChild(startMButton);
         buttonContainer.appendChild(startUbButton);
         buttonContainer.appendChild(startUpButton);
         buttonContainer.appendChild(startRButton);
-        buttonContainer.appendChild(startEButton);
-        buttonContainer.appendChild(stopButton);
-        buttonContainer.appendChild(stopMuteButton);
+        buttonContainer.appendChild(startPSButton);        
+        //buttonContainer.appendChild(stopMuteButton);
         buttonContainer.appendChild(likeButton);
         buttonContainer.appendChild(badButton);
 
@@ -422,7 +422,7 @@
                 var time = new Date().toLocaleTimeString('en-US', options);
                 var link = this.src;
                 var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                var unixTimestamp = Math.floor(Date.now() / 1000);
+                var unixTimestamp = Math.floor(Date.now());
                 var timeSinceFirstClick = unixTimestamp - firstClickTime;
                 var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look`;
                 messages.push(message);
@@ -436,7 +436,7 @@
                 var time = new Date().toLocaleTimeString('en-US', options);
                 var link = this.src;
                 var order = parseInt(link.match(/(\d+)\.jpg$/)[1]);
-                var unixTimestamp = Math.floor(Date.now() / 1000);
+                var unixTimestamp = Math.floor(Date.now());
                 var timeSinceFirstClick = unixTimestamp - firstClickTime;
                 var message = `${getUserID()};${unixTimestamp};${time};${timeSinceFirstClick};${link};${order};look again`;
                 messages.push(message);
@@ -665,7 +665,7 @@
         messages.push(message);
         updateActivityChat();
 
-        if (action === "Bad" || action === "Start"  || action === "Start;m"  || action === "Start;ub"  || action === "Start;up"  || action === "Start;r"  || action === "Start;e"  || action === "StartMute" || action === "Stop" || action === "StopMute") {
+        if (action === "Bad" || action === "Start"  || action === "Start;m"  || action === "Start;ub"  || action === "Start;up"  || action === "Start;r"  || action === "Start;ps"  || action === "StartMute" || action === "Stop" || action === "StopMute") {
             img.classList.add('black-and-white');
         } else if (action === "Like") {
             // Make the image black and white
